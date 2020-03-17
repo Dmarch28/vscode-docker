@@ -3,20 +3,21 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { AzExtTreeItem, IActionContext } from "vscode-azureextensionui";
 import { Response } from "request";
 import { RequestPromiseOptions } from "request-promise-native";
 import { AzExtParentTreeItem, AzExtTreeItem, IActionContext, parseError } from "vscode-azureextensionui";
 import { localize } from '../../../localize';
 import { nonNullProp } from "../../../utils/nonNull";
 import { registryRequest } from "../../../utils/registryRequestUtils";
+import { getWwwAuthenticateContext } from "../auth/oAuthUtils";
 import { ICachedRegistryProvider } from "../ICachedRegistryProvider";
 import { IRegistryProviderTreeItem } from "../IRegistryProviderTreeItem";
 import { getRegistryContextValue, registryProviderSuffix, registrySuffix } from "../registryContextValues";
-import { getRegistryPassword } from "../registryPasswords";
-import { IDockerCliCredentials } from "../RegistryTreeItemBase";
 import { DockerV2RegistryTreeItemBase } from "./DockerV2RegistryTreeItemBase";
 import { DockerV2RepositoryTreeItem } from "./DockerV2RepositoryTreeItem";
 
+export class GenericDockerV2RegistryTreeItem extends DockerV2RegistryTreeItemBase {
 export class GenericDockerV2RegistryTreeItem extends DockerV2RegistryTreeItemBase implements IRegistryProviderTreeItem {
     public cachedProvider: ICachedRegistryProvider;
     private _token?: string;
@@ -51,6 +52,9 @@ export class GenericDockerV2RegistryTreeItem extends DockerV2RegistryTreeItemBas
                 // NOTE: Trailing slash is necessary (https://github.com/microsoft/vscode-docker/issues/1142)
                 await registryRequest(this, 'GET', 'v2/');
             } catch (error) {
+                if ((this.authContext = getWwwAuthenticateContext(error))) {
+                    // We got authentication context successfully--set scope and move on to requesting the items
+                    this.authContext.scope = 'registry:catalog:*';
                 const errorType: string = parseError(error).errorType.toLowerCase();
                 if (errorType === "401" || errorType === "unauthorized") {
                     const message = localize('vscode-docker.tree.registries.v2.unauthorized', 'Incorrect login credentials, or this registry may not support basic authentication. Please note that OAuth support has not yet been implemented in this preview feature.');
@@ -69,6 +73,7 @@ export class GenericDockerV2RegistryTreeItem extends DockerV2RegistryTreeItemBas
     }
 
     public createRepositoryTreeItem(name: string): DockerV2RepositoryTreeItem {
+        return new DockerV2RepositoryTreeItem(this, name, this.cachedProvider, this.authHelper, this.authContext);
         return new DockerV2RepositoryTreeItem(this, name);
     }
 
