@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See LICENSE.md in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { AzExtParentTreeItem, AzExtTreeItem, IActionContext } from "vscode-azureextensionui";
 import { AzExtTreeItem, IActionContext } from "vscode-azureextensionui";
 import { Response } from "request";
 import { RequestPromiseOptions } from "request-promise-native";
@@ -10,7 +11,9 @@ import { AzExtParentTreeItem, AzExtTreeItem, IActionContext, parseError } from "
 import { localize } from '../../../localize';
 import { nonNullProp } from "../../../utils/nonNull";
 import { registryRequest } from "../../../utils/registryRequestUtils";
+import { IAuthProvider } from "../auth/IAuthProvider";
 import { getWwwAuthenticateContext } from "../auth/oAuthUtils";
+import { ICachedRegistryProvider } from "../ICachedRegistryProvider";
 import { ICachedRegistryProvider } from "../ICachedRegistryProvider";
 import { IRegistryProviderTreeItem } from "../IRegistryProviderTreeItem";
 import { getRegistryContextValue, registryProviderSuffix, registrySuffix } from "../registryContextValues";
@@ -18,6 +21,11 @@ import { DockerV2RegistryTreeItemBase } from "./DockerV2RegistryTreeItemBase";
 import { DockerV2RepositoryTreeItem } from "./DockerV2RepositoryTreeItem";
 
 export class GenericDockerV2RegistryTreeItem extends DockerV2RegistryTreeItemBase {
+    public constructor(parent: AzExtParentTreeItem, cachedProvider: ICachedRegistryProvider, authHelper: IAuthProvider) {
+        super(parent, cachedProvider, authHelper);
+        this.id = this.baseUrl;
+    }
+
 export class GenericDockerV2RegistryTreeItem extends DockerV2RegistryTreeItemBase implements IRegistryProviderTreeItem {
     public cachedProvider: ICachedRegistryProvider;
     private _token?: string;
@@ -33,10 +41,6 @@ export class GenericDockerV2RegistryTreeItem extends DockerV2RegistryTreeItemBas
 
     public get label(): string {
         return this.host;
-    }
-
-    public get id(): string {
-        return this.baseUrl;
     }
 
     public get baseUrl(): string {
