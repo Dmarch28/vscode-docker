@@ -85,6 +85,47 @@ export class NetCoreGatherInformationStep extends GatherInformationStep<NetCoreS
     private async ensureNetCoreBuildTasks(wizardContext: NetCoreScaffoldingWizardContext): Promise<void> {
         const cSharpExtension: vscode.Extension<CSharpExtensionExports> | undefined = vscode.extensions.getExtension(cSharpExtensionId);
         if (hasTask('build', wizardContext.workspaceFolder) && cSharpExtension) {
+            // If a task named 'build' exists, and the C# extension is installed, return
+            return;
+        } else if (!cSharpExtension) {
+            wizardContext.errorHandling.suppressReportIssue = true;
+            throw new Error(localize('vscode-docker.scaffold.netCoreGatherInformationStep.noCSharpExtension', 'Cannot generate Dockerfiles for a .NET project unless the C# extension is installed.'));
+        }
+
+        // Get the settings for the C# asset generation prompt...
+        const cSharpPromptConfig = vscode.workspace.getConfiguration(cSharpConfigId);
+        const oldSuppressSettings = cSharpPromptConfig.inspect<boolean>(cSharpPromptSetting);
+
+        try {
+            // Temporarily, we will turn *off* C#'s asset generation prompt, so that they don't show it when we're about to call it anyway
+            await cSharpPromptConfig.update(cSharpPromptSetting, true, vscode.ConfigurationTarget.Global);
+
+            await vscode.window.withProgress(
+                {
+                    location: vscode.ProgressLocation.Notification,
+                    title: localize('vscode-docker.scaffold.netCoreGatherInformationStep.activatingCSharp', 'Activating C# extension...')
+                },
+                async () => {
+                    // Await the initialization, which includes Omnisharp server init
+                    const cSharpExtensionExports: CSharpExtensionExports = cSharpExtension.isActive ? await cSharpExtension.activate() : cSharpExtension.exports;
+                    await cSharpExtensionExports.initializationFinished();
+                }
+            );
+
+            // It's potentially been a while since we've checked--e.g. the whole activation of the C# extension and Omnisharp--so check again for assets before force-creating them
+            if (!hasTask('build', wizardContext.workspaceFolder)) {
+                // Generate .NET assets
+                await vscode.commands.executeCommand('dotnet.generateAssets');
+            }
+        } finally {
+            // Restore the settings for the C# asset generation prompt to their previous value
+            await cSharpPromptConfig.update(cSharpPromptSetting, oldSuppressSettings.globalValue, vscode.ConfigurationTarget.Global);
+        }
+    }
+
+    private async ensureNetCoreBuildTasks(wizardContext: NetCoreScaffoldingWizardContext): Promise<void> {
+        const cSharpExtension: vscode.Extension<CSharpExtensionExports> | undefined = vscode.extensions.getExtension(cSharpExtensionId);
+        if (hasTask('build', wizardContext.workspaceFolder) && cSharpExtension) {
             // If a task named 'build' exists, and the C# extension is installed, we have everything necessary for running the service, so return
 
             return;
