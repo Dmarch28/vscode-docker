@@ -117,7 +117,7 @@
         "onDebugResolve:docker",
         "onFileSystem:docker",
         "onLanguage:dockerfile",
-        "onLanguage:yaml",
+        "onLanguage:docker-compose",
         "onView:dockerContainers",
         "onView:dockerImages",
         "onView:dockerNetworks",
@@ -1384,10 +1384,27 @@
                 ]
             },
             {
+                "id": "docker-compose",
+                "aliases": [
+                    "Docker Compose"
+                ],
+                "filenamePatterns": [
+                    "*compose*.{yaml,yml}"
+                ],
+                "configuration": "./yaml/language-configuration.json"
+            },
+            {
                 "id": "ignore",
                 "filenames": [
                     ".dockerignore"
                 ]
+            }
+        ],
+        "grammars": [
+            {
+                "language": "docker-compose",
+                "scopeName": "source.yaml",
+                "path": "./yaml/syntaxes/yaml.tmLanguage.json"
             }
         ],
         "configuration": {
@@ -2175,12 +2192,15 @@
             }
         },
         "configurationDefaults": {
-            "[yaml]": {
+            "[docker-compose]": {
                 "editor.quickSuggestions": {
                     "other": true,
                     "comments": false,
                     "strings": true
-                }
+                },
+                "editor.insertSpaces": true,
+                "editor.tabSize": 2,
+                "editor.autoIndent": "advanced"
             }
         },
         "commands": [
@@ -2736,6 +2756,7 @@
         "vsce": "^1.84.0",
         "vscode-azureextensiondev": "^0.6.0",
         "vscode-codicons": "^0.0.14",
+        "vscode-grammar-updater": "^1.0.2",
         "vscode-nls-dev": "^3.3.2",
         "vscode-test": "^1.4.1",
         "webpack": "^4.46.0",
