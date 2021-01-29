@@ -25,3 +25,4 @@ typings/**
 webpack.config*
 .eslintignore
 .eslintrc.js
+yaml/cgmanifest.json # Added because https://github.com/microsoft/vscode/blob/3b03189afae77e2a69f2c0d266738c9720965e15/extensions/yaml/.vscodeignore has it
