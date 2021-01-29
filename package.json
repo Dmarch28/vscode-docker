@@ -186,27 +186,27 @@
                     "group": "docker"
                 },
                 {
-                    "when": "resourceFilename =~ /^(?:(?!compose.*\\.ya?ml$).)*\\.ya?ml$/i && isAzureAccountInstalled",
+                    "when": "editorLangId == yaml && isAzureAccountInstalled",
                     "command": "vscode-docker.registries.azure.runFileAsTask",
                     "group": "docker"
                 },
                 {
-                    "when": "resourceFilename =~ /compose.*\\.ya?ml$/i",
+                    "when": "editorLangId == docker-compose",
                     "command": "vscode-docker.compose.down",
                     "group": "docker"
                 },
                 {
-                    "when": "resourceFilename =~ /compose.*\\.ya?ml$/i",
+                    "when": "editorLangId == docker-compose",
                     "command": "vscode-docker.compose.restart",
                     "group": "docker"
                 },
                 {
-                    "when": "resourceFilename =~ /compose.*\\.ya?ml$/i",
+                    "when": "editorLangId == docker-compose",
                     "command": "vscode-docker.compose.up",
                     "group": "docker"
                 },
                 {
-                    "when": "resourceFilename =~ /compose.*\\.ya?ml$/i && vscode-docker:composeSubsetExp",
+                    "when": "editorLangId == docker-compose && vscode-docker:composeSubsetExp",
                     "command": "vscode-docker.compose.up.subset",
                     "group": "docker"
                 },
@@ -223,27 +223,27 @@
                     "group": "docker"
                 },
                 {
-                    "when": "resourceFilename =~ /^(?:(?!compose.*\\.ya?ml$).)*\\.ya?ml$/i && isAzureAccountInstalled",
+                    "when": "resourceLangId == yaml && isAzureAccountInstalled",
                     "command": "vscode-docker.registries.azure.runFileAsTask",
                     "group": "docker"
                 },
                 {
-                    "when": "resourceFilename =~ /compose.*\\.ya?ml$/i",
+                    "when": "resourceLangId == docker-compose",
                     "command": "vscode-docker.compose.down",
                     "group": "docker"
                 },
                 {
-                    "when": "resourceFilename =~ /compose.*\\.ya?ml$/i",
+                    "when": "resourceLangId == docker-compose",
                     "command": "vscode-docker.compose.restart",
                     "group": "docker"
                 },
                 {
-                    "when": "resourceFilename =~ /compose.*\\.ya?ml$/i",
+                    "when": "resourceLangId == docker-compose",
                     "command": "vscode-docker.compose.up",
                     "group": "docker"
                 },
                 {
-                    "when": "resourceFilename =~ /compose.*\\.ya?ml$/i && vscode-docker:composeSubsetExp",
+                    "when": "resourceLangId == docker-compose && vscode-docker:composeSubsetExp",
                     "command": "vscode-docker.compose.up.subset",
                     "group": "docker"
                 },
@@ -2716,8 +2716,7 @@
         "webpack-prod": "gulp webpack-prod"
     },
     "extensionDependencies": [
-        "vscode.docker",
-        "vscode.yaml"
+        "vscode.docker"
     ],
     "devDependencies": {
         "@types/adm-zip": "^0.4.33",
