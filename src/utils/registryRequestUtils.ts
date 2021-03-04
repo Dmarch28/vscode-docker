@@ -26,6 +26,7 @@ export async function registryRequest<T>(node: IRegistryAuthTreeItem | IReposito
         ...customOptions,
     };
 
+    const baseUrl = node.baseUrl || (<IRepositoryAuthTreeItem>node).parent.baseUrl;
     const baseUrl = options.baseUrl || node.baseUrl || (<IRepositoryAuthTreeItem>node).parent.baseUrl;
     options.baseUrl = undefined;
     let fullUrl: string = url;
@@ -42,6 +43,18 @@ export async function registryRequest<T>(node: IRegistryAuthTreeItem | IReposito
         }
     });
 
+    const response = await httpRequest<T>(fullUrl, options, async (request) => {
+        if (node.signRequest) {
+            return node.signRequest(request);
+        } else {
+            return (<IRepositoryAuthTreeItem>node).parent?.signRequest(request);
+        }
+    });
+
+    return {
+        body: method !== 'DELETE' ? await response.json() : undefined,
+        headers: response.headers,
+    };
     return {
         body: method !== 'DELETE' ? await response.json() : undefined,
         headers: response.headers,

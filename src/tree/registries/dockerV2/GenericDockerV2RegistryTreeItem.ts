@@ -5,6 +5,8 @@
 
 import { AzExtParentTreeItem, AzExtTreeItem, IActionContext } from "vscode-azureextensionui";
 import { getWwwAuthenticateContext, HttpErrorResponse } from "../../../utils/httpRequest";
+import { AzExtParentTreeItem, AzExtTreeItem, IActionContext } from "vscode-azureextensionui";
+import { getWwwAuthenticateContext, HttpErrorResponse } from "../../../utils/httpRequest";
 import { AzExtTreeItem, IActionContext } from "vscode-azureextensionui";
 import { Response } from "request";
 import { RequestPromiseOptions } from "request-promise-native";
@@ -13,6 +15,7 @@ import { localize } from '../../../localize';
 import { nonNullProp } from "../../../utils/nonNull";
 import { registryRequest } from "../../../utils/registryRequestUtils";
 import { IAuthProvider } from "../auth/IAuthProvider";
+import { IAuthProvider } from "../auth/IAuthProvider";
 import { ICachedRegistryProvider } from "../ICachedRegistryProvider";
 import { ICachedRegistryProvider } from "../ICachedRegistryProvider";
 import { IRegistryProviderTreeItem } from "../IRegistryProviderTreeItem";
@@ -20,6 +23,10 @@ import { getRegistryContextValue, registryProviderSuffix, registrySuffix } from 
 import { DockerV2RegistryTreeItemBase } from "./DockerV2RegistryTreeItemBase";
 import { DockerV2RepositoryTreeItem } from "./DockerV2RepositoryTreeItem";
 
+export class GenericDockerV2RegistryTreeItem extends DockerV2RegistryTreeItemBase {
+    public constructor(parent: AzExtParentTreeItem, cachedProvider: ICachedRegistryProvider, authHelper: IAuthProvider) {
+        super(parent, cachedProvider, authHelper);
+        this.id = this.baseUrl;
 export class GenericDockerV2RegistryTreeItem extends DockerV2RegistryTreeItemBase {
     public constructor(parent: AzExtParentTreeItem, cachedProvider: ICachedRegistryProvider, authHelper: IAuthProvider) {
         super(parent, cachedProvider, authHelper);
@@ -60,6 +67,10 @@ export class GenericDockerV2RegistryTreeItem extends DockerV2RegistryTreeItemBas
                     (this.authContext = getWwwAuthenticateContext(error))) {
                     // We got authentication context successfully--set scope and move on to requesting the items
                     this.authContext.scope = 'registry:catalog:*';
+                if (error instanceof HttpErrorResponse &&
+                    (this.authContext = getWwwAuthenticateContext(error))) {
+                    // We got authentication context successfully--set scope and move on to requesting the items
+                    this.authContext.scope = 'registry:catalog:*';
                 const errorType: string = parseError(error).errorType.toLowerCase();
                 if (errorType === "401" || errorType === "unauthorized") {
                     const message = localize('vscode-docker.tree.registries.v2.unauthorized', 'Incorrect login credentials, or this registry may not support basic authentication. Please note that OAuth support has not yet been implemented in this preview feature.');
@@ -78,6 +89,7 @@ export class GenericDockerV2RegistryTreeItem extends DockerV2RegistryTreeItemBas
     }
 
     public createRepositoryTreeItem(name: string): DockerV2RepositoryTreeItem {
+        return new DockerV2RepositoryTreeItem(this, name, this.cachedProvider, this.authHelper, this.authContext);
         return new DockerV2RepositoryTreeItem(this, name, this.cachedProvider, this.authHelper, this.authContext);
         return new DockerV2RepositoryTreeItem(this, name);
     }
