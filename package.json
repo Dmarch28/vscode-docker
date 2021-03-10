@@ -2779,7 +2779,7 @@
         "fs-extra": "^9.1.0",
         "glob": "^7.1.6",
         "gradle-to-js": "^2.0.0",
-        "handlebars": "^4.7.6",
+        "handlebars": "^4.7.7",
         "node-fetch": "^2.6.1",
         "semver": "^7.3.4",
         "tar": "^6.1.0",
